@@ -108,20 +108,20 @@ const currentBalance = function (obj) {
   return sum;
 };
 
-let out = 0;
 let sumIn = 0;
+let out = 0;
 let komissiya = 0;
 const stats = function (obj) {
-  out = obj.movements
+  sumIn = obj.movements
     .filter(function (val) {
-      return val < 0;
+      return val > 0;
     })
     .reduce(function (sum = 0, val) {
       return sum + val;
     });
-  sumIn = obj.movements
+  out = obj.movements
     .filter(function (val) {
-      return val > 0;
+      return val < 0;
     })
     .reduce(function (sum = 0, val) {
       return sum + val;
@@ -139,6 +139,7 @@ const stats = function (obj) {
 };
 
 let kirganUser;
+// btnLogin.innerHTML = '';
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault(); //htmldagi default holatlarni o'chirish
   // console.log('LOGIN');
@@ -163,7 +164,57 @@ btnLogin.addEventListener('click', function (e) {
   labelSumOut.textContent = `${Math.abs(out)}€`;
   labelSumInterest.textContent = `${Math.abs(komissiya)}€`;
   //console.log(kirganUser);
+
+  btnTransfer.addEventListener('click', function (e) {
+    e.preventDefault();
+    let login = inputLoginUsername.value;
+    // let parol = Number(inputLoginPin.value);
+    kirganUser = accounts.find(function (val) {
+      return val.username == login;
+    });
+    const amount = Number(inputTransferAmount.value);
+    const receiverAcc = accounts.find(
+      acc => acc.username === inputTransferTo.value
+    );
+    inputTransferAmount.value = inputTransferTo.value = '';
+
+    if (
+      amount > 0 &&
+      receiverAcc &&
+      labelBalance.textContent >= amount &&
+      receiverAcc?.username !== kirganUser.username
+    ) {
+      // Doing the transfer
+      kirganUser.movements.push(-amount);
+      receiverAcc.movements.push(amount);
+
+      
+    }
+  });
 });
+
+// btnTransfer.addEventListener('click', function (e) {
+//   e.preventDefault();
+//   const amount = Number(inputTransferAmount.value);
+//   const receiverAcc = accounts.find(
+//     acc => acc.username === inputTransferTo.value
+//   );
+//   inputTransferAmount.value = inputTransferTo.value = '';
+
+//   if (
+//     amount > 0 &&
+//     receiverAcc &&
+//     kirganUser.balance >= amount &&
+//     receiverAcc?.username !== currentAccount.username
+//   ) {
+//     // Doing the transfer
+//     kirganUser.movements.push(-amount);
+//     receiverAcc.movements.push(amount);
+
+//     // Update UI
+//     // updateUI(currentAccount);
+//   }
+// });
 
 //find method
 // let x = accounts.find(function (val) {
