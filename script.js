@@ -123,9 +123,9 @@ const stats = function (obj) {
     .filter(function (val) {
       return val < 0;
     })
-    .reduce(function (sum = 0, val) {
+    .reduce(function (sum, val) {
       return sum + val;
-    });
+    }, 0);
   komissiya = obj.movements
     .filter(function (val) {
       return val < 0;
@@ -133,12 +133,19 @@ const stats = function (obj) {
     .map(function (val) {
       return (val * obj.interestRate) / 100;
     })
-    .reduce(function (sum = 0, val) {
+    .reduce(function (sum, val) {
       return sum + val;
-    });
+    }, 0);
+};
+
+const updateInterface = function (acc) {
+  displayTransactions(acc);
+  currentBalance(acc);
+  stats(acc);
 };
 
 let kirganUser;
+
 // btnLogin.innerHTML = '';
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault(); //htmldagi default holatlarni o'chirish
@@ -157,7 +164,7 @@ btnLogin.addEventListener('click', function (e) {
     labelWelcome.textContent = `Try again!`;
     labelWelcome.style.color = `red`;
   }
-  displayTransactions(kirganUser);
+  // displayTransactions(kirganUser);
   labelBalance.textContent = `${currentBalance(kirganUser)}€`;
   stats(kirganUser);
   labelSumIn.textContent = `${sumIn}€`;
@@ -165,32 +172,33 @@ btnLogin.addEventListener('click', function (e) {
   labelSumInterest.textContent = `${Math.abs(komissiya)}€`;
   //console.log(kirganUser);
 
-  btnTransfer.addEventListener('click', function (e) {
-    e.preventDefault();
-    let login = inputLoginUsername.value;
-    // let parol = Number(inputLoginPin.value);
-    kirganUser = accounts.find(function (val) {
-      return val.username == login;
-    });
-    const amount = Number(inputTransferAmount.value);
-    const receiverAcc = accounts.find(
-      acc => acc.username === inputTransferTo.value
-    );
-    inputTransferAmount.value = inputTransferTo.value = '';
+  // btnTransfer.addEventListener('click', function (e) {
+  //   e.preventDefault();
+  //   let login = inputLoginUsername.value;
+  //   // let parol = Number(inputLoginPin.value);
+  //   kirganUser = accounts.find(function (val) {
+  //     return val.username == login;
+  //   });
+  //   const amount = Number(inputTransferAmount.value);
+  //   const receiverAcc = accounts.find(
+  //     acc => acc.username === inputTransferTo.value
+  //   );
+  //   inputTransferAmount.value = inputTransferTo.value = '';
 
-    if (
-      amount > 0 &&
-      receiverAcc &&
-      labelBalance.textContent >= amount &&
-      receiverAcc?.username !== kirganUser.username
-    ) {
-      // Doing the transfer
-      kirganUser.movements.push(-amount);
-      receiverAcc.movements.push(amount);
+  //   if (
+  //     amount > 0 &&
+  //     receiverAcc &&
+  //     labelBalance.textContent >= amount &&
+  //     receiverAcc?.username !== kirganUser.username
+  //   ) {
+  //     // Doing the transfer
+  //     kirganUser.movements.push(-amount);
+  //     receiverAcc.movements.push(amount);
 
-      
-    }
-  });
+  //   }
+  // });
+
+  updateInterface(kirganUser);
 });
 
 // btnTransfer.addEventListener('click', function (e) {
@@ -204,15 +212,15 @@ btnLogin.addEventListener('click', function (e) {
 //   if (
 //     amount > 0 &&
 //     receiverAcc &&
-//     kirganUser.balance >= amount &&
-//     receiverAcc?.username !== currentAccount.username
+//     currentBalance(kirganUser) >= amount &&
+//     receiverAcc?.username !== kirganUser.username
 //   ) {
 //     // Doing the transfer
 //     kirganUser.movements.push(-amount);
 //     receiverAcc.movements.push(amount);
 
 //     // Update UI
-//     // updateUI(currentAccount);
+//     updateInterface(kirganUser);
 //   }
 // });
 
