@@ -8,6 +8,8 @@
 const account1 = {
   owner: 'Jonas Schmedtmann',
   movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+
+  movements1: [200, 450, -400, 3000, -650, -130, 70, 1300],
   interestRate: 1.2, // %
   pin: 1111,
 };
@@ -15,6 +17,7 @@ const account1 = {
 const account2 = {
   owner: 'Jessica Davis',
   movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
+  movements1: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
   interestRate: 1.5,
   pin: 2222,
 };
@@ -22,6 +25,7 @@ const account2 = {
 const account3 = {
   owner: 'Steven Thomas Williams',
   movements: [200, -200, 340, -300, -20, 50, 400, -460],
+  movements1: [200, -200, 340, -300, -20, 50, 400, -460],
   interestRate: 0.7,
   pin: 3333,
 };
@@ -29,6 +33,8 @@ const account3 = {
 const account4 = {
   owner: 'Sarah Smith',
   movements: [430, 1000, 700, 50, 90],
+
+  movements1: [430, 1000, 700, 50, 90],
   interestRate: 1,
   pin: 4444,
 };
@@ -137,14 +143,25 @@ const stats = function (obj) {
       return sum + val;
     }, 0);
 };
+function sortt(obj) {
+  obj.movements.sort((a, b) => a - b);
+}
+function unSortt(obj) {
+  obj.movements = [...obj.movements1];
+}
+
+let kirganUser;
 
 const updateInterface = function (acc) {
   displayTransactions(acc);
   currentBalance(acc);
   stats(acc);
+  labelBalance.textContent = `${currentBalance(kirganUser)}€`;
+  stats(kirganUser);
+  labelSumIn.textContent = `${sumIn}€`;
+  labelSumOut.textContent = `${Math.abs(out)}€`;
+  labelSumInterest.textContent = `${Math.abs(komissiya)}€`;
 };
-
-let kirganUser;
 
 // btnLogin.innerHTML = '';
 btnLogin.addEventListener('click', function (e) {
@@ -172,63 +189,80 @@ btnLogin.addEventListener('click', function (e) {
   labelSumInterest.textContent = `${Math.abs(komissiya)}€`;
   //console.log(kirganUser);
 
-  // btnTransfer.addEventListener('click', function (e) {
-  //   e.preventDefault();
-  //   let login = inputLoginUsername.value;
-  //   // let parol = Number(inputLoginPin.value);
-  //   kirganUser = accounts.find(function (val) {
-  //     return val.username == login;
-  //   });
-  //   const amount = Number(inputTransferAmount.value);
-  //   const receiverAcc = accounts.find(
-  //     acc => acc.username === inputTransferTo.value
-  //   );
-  //   inputTransferAmount.value = inputTransferTo.value = '';
+  updateInterface(kirganUser);
+});
 
-  //   if (
-  //     amount > 0 &&
-  //     receiverAcc &&
-  //     labelBalance.textContent >= amount &&
-  //     receiverAcc?.username !== kirganUser.username
-  //   ) {
-  //     // Doing the transfer
-  //     kirganUser.movements.push(-amount);
-  //     receiverAcc.movements.push(amount);
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  let qabulQiluvchi = String(inputTransferTo.value);
+  let kiritilganSumma = Number(inputTransferAmount.value);
+  let transferUser = accounts.find(function (val) {
+    return qabulQiluvchi === val.username;
+  });
+  if (transferUser !== kirganUser) {
+    if (currentBalance(kirganUser) > kiritilganSumma) {
+      kirganUser.movements.push(kiritilganSumma * -1);
+      transferUser.movements.push(kiritilganSumma);
+    }
+    updateInterface(kirganUser);
+    inputTransferTo.value = inputTransferAmount.value = '';
+  }
+});
 
-  //   }
-  // });
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+  let qarz = Number(inputLoanAmount.value);
+  if (qarz <= sumIn * 0.1) {
+    kirganUser.movements.push(qarz);
+  } else {
+    alert(`siz buncha summa qarz ololmaysiz`);
+  }
+  updateInterface(kirganUser);
+  inputLoanAmount.value = '';
+});
+
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+  let confirmUser = inputCloseUsername.value;
+  let confirmPin = Number(inputClosePin.value);
+  inputCloseUsername.value = inputClosePin.value = '';
+  kirganUser = accounts.find(function (val) {
+    return val.username === confirmUser;
+  });
+  if (confirmUser === kirganUser.username && confirmPin === kirganUser.pin) {
+    accounts.splice(accounts.indexOf(kirganUser), 1);
+    containerApp.style.opacity = 0;
+    labelWelcome.textContent = '';
+  }
+  if (confirmUser === kirganUser.username && confirmPin !== kirganUser.pin) {
+    alert(`parol noto'g'ri`);
+  }
 
   updateInterface(kirganUser);
 });
+
 let sortirovka;
-btnSort.addEventListener('click', function (e) {
-  e.preventDefault();
-  kirganUser = accounts.find(function (val) {
-    return val.username == inputLoginUsername.value;
-  });
-  sortirovka = kirganUser.movements.sort((a, b) => a - b);
+let shart = 0;
+btnSort.addEventListener('click', function () {
+  if (shart == 0) {
+    sortt(kirganUser);
+    shart = 1;
+  } else {
+    unSortt(kirganUser);
+    shart = 0;
+  }
+
+  updateInterface(kirganUser);
 });
-// btnTransfer.addEventListener('click', function (e) {
-//   e.preventDefault();
-//   const amount = Number(inputTransferAmount.value);
-//   const receiverAcc = accounts.find(
-//     acc => acc.username === inputTransferTo.value
+
+// labelBalance.addEventListener('click', function () {
+//   let utkazmalar = Array.from(
+//     document.querySelectorAll('.movements__value'),
+//     function (val, key) {
+//       return Number(val.textContent);
+//     }
 //   );
-//   inputTransferAmount.value = inputTransferTo.value = '';
-
-//   if (
-//     amount > 0 &&
-//     receiverAcc &&
-//     currentBalance(kirganUser) >= amount &&
-//     receiverAcc?.username !== kirganUser.username
-//   ) {
-//     // Doing the transfer
-//     kirganUser.movements.push(-amount);
-//     receiverAcc.movements.push(amount);
-
-//     // Update UI
-//     updateInterface(kirganUser);
-//   }
+//   console.log(utkazmalar);
 // });
 
 //find method
