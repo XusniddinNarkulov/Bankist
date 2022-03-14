@@ -200,7 +200,14 @@ btnLogin.addEventListener('click', function (e) {
 
   updateInterface(kirganUser);
 });
-
+let sortirovka;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  kirganUser = accounts.find(function (val) {
+    return val.username == inputLoginUsername.value;
+  });
+  sortirovka = kirganUser.movements.sort((a, b) => a - b);
+});
 // btnTransfer.addEventListener('click', function (e) {
 //   e.preventDefault();
 //   const amount = Number(inputTransferAmount.value);
